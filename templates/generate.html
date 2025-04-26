@@ -2,74 +2,113 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Generate Voice | EchoAI</title>
+  <title>Generate Audio</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #eee;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    h1 {
-      font-size: 24px;
-      margin-bottom: 1em;
-    }
-    textarea {
-      width: 300px;
-      height: 100px;
-      padding: 10px;
-      border-radius: 5px;
-      border: none;
-      resize: none;
-      font-size: 14px;
-    }
-    button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      font-size: 14px;
-      background: #444;
+    .container {
+      max-width: 600px;
+      margin: 100px auto;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      text-align: center;
       color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
     }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2em;
+    }
+
+    textarea {
+      width: 80%;
+      height: 120px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      resize: none;
+      font-size: 1em;
+      background: #f9f9f9;
+    }
+
+    select {
+      width: 80%;
+      padding: 10px;
+      margin-top: 15px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+      background: #f9f9f9;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 10px;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
     audio {
       margin-top: 20px;
+      width: 100%;
+    }
+
+    #generationTime {
+      margin-top: 15px;
+      color: lightgreen;
+      font-size: 1em;
     }
   </style>
 </head>
 <body>
-  <h1>Try Voice Generation</h1>
-  <textarea id="textInput" placeholder="Type your sentence here..."></textarea>
-  <button onclick="generateAudio()">Generate Audio</button>
-  <audio id="audioPlayer" controls style="display:none;"></audio>
+  <div class="container">
+    <h1>Generate Voice</h1>
 
-  <script>
-    async function generateAudio() {
-      const text = document.getElementById("textInput").value;
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
+    <textarea id="textInput" placeholder="Type your text here..."></textarea>
 
-      if (res.ok) {
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        const player = document.getElementById("audioPlayer");
-        player.src = url;
-        player.style.display = "block";
-        player.play();
-      } else {
-        alert("Failed to generate audio.");
-      }
-    }
-  </script>
+    <!-- Dropdown for voice preset -->
+    <select id="voicePreset">
+      <option value="v2/en_speaker_0">Speaker 0</option>
+      <option value="v2/en_speaker_1">Speaker 1</option>
+      <option value="v2/en_speaker_2">Speaker 2</option>
+      <option value="v2/en_speaker_3">Speaker 3</option>
+      <option value="v2/en_speaker_4">Speaker 4</option>
+      <option value="v2/en_speaker_5">Speaker 5</option>
+      <option value="v2/en_speaker_6">Speaker 6</option>
+      <option value="v2/en_speaker_7">Speaker 7</option>
+      <option value="v2/en_speaker_8">Speaker 8</option>
+      <option value="v2/en_speaker_9">Speaker 9</option>
+    </select>
+
+    <!-- Dropdown for emotions -->
+    <select id="emotionSelect" onchange="addEmotionTag()">
+      <option value="">Add Emotion</option>
+      <option value="happy">Happy</option>
+      <option value="sad">Sad</option>
+      <option value="angry">Angry</option>
+      <option value="neutral">Neutral</option>
+    </select>
+
+    <button onclick="generateAudio()">Generate</button>
+
+    <audio id="audioPlayer" controls style="display:none;"></audio>
+
+    <p id="generationTime"></p>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
