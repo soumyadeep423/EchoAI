@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Generate Voice | EchoAI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 1em;
+    }
+    textarea {
+      width: 300px;
+      height: 100px;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      resize: none;
+      font-size: 14px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 14px;
+      background: #444;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    audio {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Try Voice Generation</h1>
+  <textarea id="textInput" placeholder="Type your sentence here..."></textarea>
+  <button onclick="generateAudio()">Generate Audio</button>
+  <audio id="audioPlayer" controls style="display:none;"></audio>
+
+  <script>
+    async function generateAudio() {
+      const text = document.getElementById("textInput").value;
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const player = document.getElementById("audioPlayer");
+        player.src = url;
+        player.style.display = "block";
+        player.play();
+      } else {
+        alert("Failed to generate audio.");
+      }
+    }
+  </script>
+</body>
+</html>

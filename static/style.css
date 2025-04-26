@@ -1,0 +1,183 @@
+/* General Styles */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(180deg, #656BF9 23.82%, #2E3050 55.47%, #1E1E1E 63%);
+    font-family: 'Inter', sans-serif;
+    cursor: default; /* Hide default cursor */
+}
+
+button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid white;
+    background: transparent;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+button:hover {
+    background: white;
+    color: black;
+}
+
+/* Navigation Bar */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Logo */
+.logo {
+    width: 144px;
+    height: 58px;
+}
+
+/* Navigation Links */
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 32px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links li {
+    display: inline;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #9b51e0;
+}
+
+/* Log in Button */
+.login-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid white;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.3s ease;
+}
+
+.login-btn:hover {
+    background: white;
+    color: black;
+}
+
+/* Animated Sentences Section */
+/* Animated Sentences Section */
+.frame {
+    display: flex;
+    width: 631px;
+    padding: 20px 50px;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Text Wrapper */
+.text-wrapper {
+    font-size: 20px;
+    font-weight: 500;
+    color: white;
+    margin-bottom: 10px;
+}
+
+/* Animated Text Section */
+.animated-text-of {
+    font-size: 24px;
+    font-weight: bold;
+    color: #9b51e0; /* Light Purple */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Blinking Cursor */
+.blinking-cursor {
+    width: 8px;
+    height: 24px;
+    background-color: white;
+    margin-left: 5px;
+    animation: blink 0.8s infinite;
+}
+
+/* Keyframes for Cursor Blink */
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Overlap Group */
+.overlap-group {
+    display: flex;
+    align-items: center;
+}
+
+/* Animated Text (Typing Effect) */
+.div {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid white; /* Creates a typing effect */
+    animation: typing 2s steps(10, end), blink-caret 0.8s infinite;
+}
+
+/* Typing Animation */
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+/* Cursor Blink Effect */
+@keyframes blink-caret {
+    50% { border-color: transparent; }
+}
+
+
+/* Custom Cursor
+.custom-cursor {
+    width: 15px;
+    height: 15px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 1001;
+} */
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+    }
+}
