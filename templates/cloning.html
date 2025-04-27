@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Voice Cloning</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    .container {
+      max-width: 600px;
+      margin: 100px auto;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      text-align: center;
+      color: white;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2em;
+    }
+
+    textarea {
+      width: 80%;
+      height: 120px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      resize: none;
+      font-size: 1em;
+      background: #f9f9f9;
+    }
+
+    input[type="file"] {
+      margin: 20px 0;
+      color: white;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 10px;
+      background-color: #9b51e0;
+      color: white;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #7d3ac1;
+    }
+
+    audio {
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    #generationTime {
+      margin-top: 15px;
+      color: lightgreen;
+      font-size: 1em;
+    }
+
+    .instructions {
+      margin-top: 20px;
+      font-size: 0.9em;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Voice Cloning</h1>
+    <p class="instructions">Upload a short audio sample (5-10 seconds) of the voice you want to clone</p>
+
+    <textarea id="textInput" placeholder="Enter the text you want the cloned voice to speak..."></textarea>
+
+    <input type="file" id="audioUpload" accept="audio/*">
+
+    <button onclick="cloneVoice()">Clone Voice</button>
+
+    <audio id="audioPlayer" controls style="display:none;"></audio>
+
+    <p id="generationTime"></p>
+  </div>
+
+  <script>
+    function cloneVoice() {
+      const text = document.getElementById("textInput").value;
+      const audioFile = document.getElementById("audioUpload").files[0];
+      const button = document.querySelector("button");
+      const audioPlayer = document.getElementById("audioPlayer");
+      const generationTime = document.getElementById("generationTime");
+
+      if (!text.trim()) {
+        alert("Please enter some text!");
+        return;
+      }
+
+      if (!audioFile) {
+        alert("Please upload an audio file!");
+        return;
+      }
+
+      button.disabled = true;
+      button.innerText = "Cloning...";
+      generationTime.innerText = "";
+
+      const startTime = performance.now();
+
+      const formData = new FormData();
+      formData.append("text", text);
+      formData.append("audio", audioFile);
+
+      fetch("/api/clone", {
+        method: "POST",
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Failed to clone voice");
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        const endTime = performance.now();
+        const elapsedTime = ((endTime - startTime) / 1000).toFixed(2);
+
+        const audioURL = URL.createObjectURL(blob);
+        audioPlayer.src = audioURL;
+        audioPlayer.style.display = "block";
+        audioPlayer.play();
+
+        generationTime.innerText = `Generated in ${elapsedTime} seconds.`;
+      })
+      .catch(error => {
+        console.error(error);
+        alert("An error occurred while cloning voice.");
+      })
+      .finally(() => {
+        button.disabled = false;
+        button.innerText = "Clone Voice";
+      });
+    }
+  </script>
+</body>
+</html>
