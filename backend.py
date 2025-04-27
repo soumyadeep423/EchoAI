@@ -20,6 +20,9 @@ default_voice_preset = "v2/en_speaker_6"  # fallback preset
 # Configure Replicate client
 replicate_client = replicate.Client(api_token=os.getenv("REPLICATE_API_TOKEN"))
 
+OUTPUT_DIR = "output"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -55,61 +58,24 @@ def generate_audio():
 
 @app.route("/api/clone", methods=["POST"])
 def clone_voice():
-    try:
-        if 'audio' not in request.files:
-            return jsonify({"error": "No audio file provided"}), 400
-        
-        audio_file = request.files['audio']
-        text = request.form.get('text', '').strip()
-        
-        if not text:
-            return jsonify({"error": "Text is required"}), 400
+    audio_file = request.files['audio']
+    text = request.form['text']
 
-        # Save the uploaded file temporarily
-        temp_dir = tempfile.mkdtemp()
-        audio_path = os.path.join(temp_dir, secure_filename(audio_file.filename))
-        audio_file.save(audio_path)
+    audio_path = os.path.join(OUTPUT_DIR, audio_file.filename)
+    audio_file.save(audio_path)
 
-        # Process with F5-TTS
-        with open(audio_path, "rb") as ref_audio:
-            input = {
-                "gen_text": text,
-                "ref_text": "",  # You can modify this if needed
-                "ref_audio": ref_audio
-            }
+    with open(audio_path, "rb") as ref_audio:
+        output_url = replicate_client.run(
+            "x-lance/f5-tts:87faf6dd7a692dd82043f662e76369cab126a2cf1937e25a9d41e0b834fd230e",
+            input={"gen_text": text, "ref_text": "", "ref_audio": ref_audio}
+        )
 
-            output_url = replicate_client.run(
-                "x-lance/f5-tts:87faf6dd7a692dd82043f662e76369cab126a2cf1937e25a9d41e0b834fd230e",
-                input=input
-            )
+    response = requests.get(output_url)
+    cloned_output_path = os.path.join(OUTPUT_DIR, "cloned.wav")
+    with open(cloned_output_path, "wb") as f:
+        f.write(response.content)
 
-            # Download the audio from output_url
-            response = requests.get(output_url)
-            output_path = os.path.join(temp_dir, "cloned_output.wav")
-            with open(output_path, "wb") as f:
-                f.write(response.content)
-
-            # Clean up the uploaded file
-            os.remove(audio_path)
-
-            return send_file(output_path, mimetype="audio/wav")
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    finally:
-        # Clean up the temporary directory
-        if 'temp_dir' in locals():
-            for filename in os.listdir(temp_dir):
-                file_path = os.path.join(temp_dir, filename)
-                try:
-                    if os.path.isfile(file_path):
-                        os.unlink(file_path)
-                except Exception as e:
-                    print(f"Error deleting {file_path}: {e}")
-            try:
-                os.rmdir(temp_dir)
-            except Exception as e:
-                print(f"Error removing temp directory: {e}")
+    return send_file(cloned_output_path, mimetype="audio/wav")
 
 if __name__ == "__main__":
     app.run(debug=True)
