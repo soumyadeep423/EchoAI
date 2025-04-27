@@ -6,6 +6,9 @@ import os
 import replicate
 from werkzeug.utils import secure_filename
 import tempfile
+import requests
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -15,7 +18,7 @@ model = BarkModel.from_pretrained("suno/bark")
 default_voice_preset = "v2/en_speaker_6"  # fallback preset
 
 # Configure Replicate client
-replicate_client = replicate.Client(api_token="r8_B5Riax1c95EAkwcZFzXiLjds4h1x9Tm43x3OF")
+replicate_client = replicate.Client(api_token=os.getenv("REPLICATE_API_TOKEN"))
 
 @app.route("/")
 def home():
@@ -75,15 +78,16 @@ def clone_voice():
                 "ref_audio": ref_audio
             }
 
-            output = replicate_client.run(
+            output_url = replicate_client.run(
                 "x-lance/f5-tts:87faf6dd7a692dd82043f662e76369cab126a2cf1937e25a9d41e0b834fd230e",
                 input=input
             )
 
-            # Save the output to a temporary file
+            # Download the audio from output_url
+            response = requests.get(output_url)
             output_path = os.path.join(temp_dir, "cloned_output.wav")
-            with open(output_path, "wb") as file:
-                file.write(output.read())
+            with open(output_path, "wb") as f:
+                f.write(response.content)
 
             # Clean up the uploaded file
             os.remove(audio_path)
