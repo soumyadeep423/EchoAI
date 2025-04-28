@@ -102,8 +102,11 @@
       <option value="neutral">Neutral</option>
     </select>
 
-    <button onclick="generateAudio()">Generate</button>
-
+    <button id="generateButton" onclick="generateAudio()">
+      <span id="generateText">Generate</span>
+      <div id="generateSpinner" class="spinner" style="display:none;"></div>
+    </button>
+    
     <audio id="audioPlayer" controls style="display:none;"></audio>
 
     <p id="generationTime"></p>

@@ -72,6 +72,22 @@
       font-size: 0.9em;
       color: #ccc;
     }
+    .spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
   </style>
 </head>
 <body>
@@ -83,7 +99,10 @@
 
     <input type="file" id="audioUpload" accept="audio/*">
 
-    <button onclick="cloneVoice()">Clone Voice</button>
+    <button id="cloneButton" onclick="cloneVoice()">
+        <span id="cloneText">Clone Voice</span>
+        <div id="cloneSpinner" class="spinner" style="display:none;"></div>
+    </button>
 
     <audio id="audioPlayer" controls style="display:none;"></audio>
 
@@ -92,61 +111,65 @@
 
   <script>
     function cloneVoice() {
-      const text = document.getElementById("textInput").value;
-      const audioFile = document.getElementById("audioUpload").files[0];
-      const button = document.querySelector("button");
-      const audioPlayer = document.getElementById("audioPlayer");
-      const generationTime = document.getElementById("generationTime");
+        const text = document.getElementById("textInput").value;
+        const audioFile = document.getElementById("audioUpload").files[0];
+        const button = document.getElementById("cloneButton");
+        const buttonText = document.getElementById("cloneText");
+        const spinner = document.getElementById("cloneSpinner");
+        const audioPlayer = document.getElementById("audioPlayer");
+        const generationTime = document.getElementById("generationTime");
 
-      if (!text.trim()) {
-        alert("Please enter some text!");
-        return;
-      }
-
-      if (!audioFile) {
-        alert("Please upload an audio file!");
-        return;
-      }
-
-      button.disabled = true;
-      button.innerText = "Cloning...";
-      generationTime.innerText = "";
-
-      const startTime = performance.now();
-
-      const formData = new FormData();
-      formData.append("text", text);
-      formData.append("audio", audioFile);
-
-      fetch("/api/clone", {
-        method: "POST",
-        body: formData
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Failed to clone voice");
+        if (!text.trim()) {
+            alert("Please enter some text!");
+            return;
         }
-        return response.blob();
-      })
-      .then(blob => {
-        const endTime = performance.now();
-        const elapsedTime = ((endTime - startTime) / 1000).toFixed(2);
 
-        const audioURL = URL.createObjectURL(blob);
-        audioPlayer.src = audioURL;
-        audioPlayer.style.display = "block";
-        audioPlayer.play();
+        if (!audioFile) {
+            alert("Please upload an audio file!");
+            return;
+        }
 
-        generationTime.innerText = `Generated in ${elapsedTime} seconds.`;
-      })
-      .catch(error => {
-        console.error(error);
-        alert("An error occurred while cloning voice.");
-      })
-      .finally(() => {
-        button.disabled = false;
-        button.innerText = "Clone Voice";
-      });
+        button.disabled = true;
+        buttonText.innerText = "Cloning...";
+        spinner.style.display = "inline-block";
+        generationTime.innerText = "";
+
+        const startTime = performance.now();
+
+        const formData = new FormData();
+        formData.append("text", text);
+        formData.append("audio", audioFile);
+
+        fetch("/api/clone", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+            throw new Error("Failed to clone voice");
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            const endTime = performance.now();
+            const elapsedTime = ((endTime - startTime) / 1000).toFixed(2);
+
+            const audioURL = URL.createObjectURL(blob);
+            audioPlayer.src = audioURL;
+            audioPlayer.style.display = "block";
+            audioPlayer.play();
+
+            generationTime.innerText = `Generated in ${elapsedTime} seconds.`;
+        })
+        .catch(error => {
+            console.error(error);
+            alert("An error occurred while cloning voice.");
+        })
+        .finally(() => {
+            button.disabled = false;
+            buttonText.innerText = "Clone Voice";
+            spinner.style.display = "none";
+        });
     }
   </script>
 </body>
