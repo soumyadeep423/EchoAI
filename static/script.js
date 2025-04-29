@@ -101,7 +101,7 @@ function addEmotionTag() {
   let tag = "";
 
   if (emotion === "happy") {
-    tag = "[laughter]";
+    tag = "[laughs]";
   } else if (emotion === "sad") {
     tag = "[sighs]";
   } else if (emotion === "angry") {
